@@ -30,6 +30,5 @@
 + (BOOL) loadBundle:(SIMBLPlugin*)_bundle forApplicationIdentifiers:(NSArray*)_applicationIdentifiers;
 + (BOOL) loadBundle:(SIMBLPlugin*)_bundle forTargetApplications:(NSArray*)_targetApplications;
 + (BOOL) loadBundle:(SIMBLPlugin*)_bundle;
-+ (BOOL) checkPlugin:(SIMBLPlugin*)_plugin hasArchForProcess:(pid_t)_pid;
 
 @end
