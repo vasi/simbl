@@ -10,6 +10,8 @@
 #import "NSAlert_SIMBL.h"
 
 #import <objc/objc-class.h>
+#import <mach-o/arch.h>
+#import <sys/sysctl.h>
 
 /*
 	<key>SIMBLTargetApplications</key>
@@ -91,6 +93,10 @@ OSErr InjectEventHandler(const AppleEvent *ev, AppleEvent *reply, long refcon)
 	// this is common if you have User vs. System-wide installs - probably mostly for developers
 	// "physician, heal thyself!"
 	if ([loadedBundleIdentifiers objectForKey:pluginIdentifier] != nil)
+		return NO;
+	
+	// Check if this bundle has an appropriate architecture for us to load
+	if (![self checkPlugin: pluginBundle hasArchForProcess: getpid()])
 		return NO;
 	
 	// this is the new way of specifying when to load a bundle
@@ -226,6 +232,51 @@ OSErr InjectEventHandler(const AppleEvent *ev, AppleEvent *reply, long refcon)
 	}
 	
 	return NO;
+}
+
++ (BOOL) checkPlugin:(SIMBLPlugin*)_plugin hasArchForProcess:(pid_t)_pid {
+	/* Find the architecture of the process.
+	 *
+	 * We use an undocumented sysctl:
+	 * http://stclairsoft.com/blog/2008/02/06/determining-if-an-app-is-running-in-64-bit-mode/
+	 * It is possible to do this with kern.proc.pid, but that's fragile and
+	 * ugly.
+	 */
+	cpu_type_t cputype;
+	size_t outlen = sizeof(cputype);
+	
+	int mib[CTL_MAXNAME];
+	size_t miblen = CTL_MAXNAME;
+	if (sysctlnametomib("sysctl.proc_cputype", mib, &miblen)) {
+		perror("sysctl sysctl.proc_cputype can't be translated: ");
+		return YES; // If the sysctl goes away, assume we can load
+	}
+	mib[miblen++] = _pid;
+	if (sysctl(mib, miblen, &cputype, &outlen, NULL, 0)) {
+		perror("sysctl sysctl.proc_cputype failed: ");
+		return YES;
+	}	
+	
+	
+	// Check the plugin for the type we found
+	NSBundle *bundle = [NSBundle bundleWithPath: [_plugin path]];
+	NSArray *arches = [bundle executableArchitectures];
+	BOOL ok = [arches containsObject: [NSNumber numberWithInt: cputype]];
+	
+	if (!ok) { // Print a message
+		NSString *archname;
+		const NXArchInfo *archinfo =
+			NXGetArchInfoFromCpuType(cputype, CPU_SUBTYPE_MULTIPLE);
+		if (archinfo) {
+			archname = [NSString stringWithUTF8String: archinfo->name];
+		} else {
+			archname = [NSString stringWithFormat: @"CPU type %d", cputype];
+		}
+		NSLog(@"SIMBL plugin %@ is missing architecture %@", [_plugin _dt_name],
+			  archname);
+	}
+	
+	return ok;
 }
 
 @end
