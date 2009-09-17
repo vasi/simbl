@@ -6,21 +6,6 @@
 	objectVersion = 46;
 	objects = {
 
-/* Begin PBXAggregateTarget section */
-		276144AE105F50FB00F906F6 /* All */ = {
-			isa = PBXAggregateTarget;
-			buildConfigurationList = 276144BC105F512000F906F6 /* Build configuration list for PBXAggregateTarget "All" */;
-			buildPhases = (
-			);
-			dependencies = (
-				276144C9105F51D800F906F6 /* PBXTargetDependency */,
-				276144B5105F510500F906F6 /* PBXTargetDependency */,
-			);
-			name = All;
-			productName = All;
-		};
-/* End PBXAggregateTarget section */
-
 /* Begin PBXBuildFile section */
 		276144DA105F523C00F906F6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 276144CD105F523C00F906F6 /* InfoPlist.strings */; };
 		276144DB105F523C00F906F6 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 276144CF105F523C00F906F6 /* MainMenu.xib */; };
@@ -42,18 +27,11 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		276144B4105F510500F906F6 /* PBXContainerItemProxy */ = {
+		5916EA531061E09E007D63BB /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 089C1669FE841209C02AAC07 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 8D5B49AC048680CD000E48DA;
-			remoteInfo = SIMBL;
-		};
-		276144C8105F51D800F906F6 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 089C1669FE841209C02AAC07 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 276144C0105F51CA00F906F6;
+			remoteGlobalIDString = 276144C0105F51CA00F906F6 /* SIMBL Agent */;
 			remoteInfo = "SIMBL Agent";
 		};
 /* End PBXContainerItemProxy section */
@@ -219,6 +197,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				5916EA541061E09E007D63BB /* PBXTargetDependency */,
 			);
 			name = SIMBL;
 			productInstallPath = "$(HOME)/Library/Bundles";
@@ -243,7 +222,6 @@
 			targets = (
 				8D5B49AC048680CD000E48DA /* SIMBL */,
 				276144C0105F51CA00F906F6 /* SIMBL Agent */,
-				276144AE105F50FB00F906F6 /* All */,
 			);
 		};
 /* End PBXProject section */
@@ -324,15 +302,10 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		276144B5105F510500F906F6 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 8D5B49AC048680CD000E48DA /* SIMBL */;
-			targetProxy = 276144B4105F510500F906F6 /* PBXContainerItemProxy */;
-		};
-		276144C9105F51D800F906F6 /* PBXTargetDependency */ = {
+		5916EA541061E09E007D63BB /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 276144C0105F51CA00F906F6 /* SIMBL Agent */;
-			targetProxy = 276144C8105F51D800F906F6 /* PBXContainerItemProxy */;
+			targetProxy = 5916EA531061E09E007D63BB /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -356,27 +329,6 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
-		276144AF105F50FB00F906F6 /* Development */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				PRODUCT_NAME = All;
-			};
-			name = Development;
-		};
-		276144B0105F50FB00F906F6 /* Deployment */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				PRODUCT_NAME = All;
-				ZERO_LINK = NO;
-			};
-			name = Deployment;
-		};
 		276144C4105F51CB00F906F6 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -550,15 +502,6 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		276144BC105F512000F906F6 /* Build configuration list for PBXAggregateTarget "All" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				276144AF105F50FB00F906F6 /* Development */,
-				276144B0105F50FB00F906F6 /* Deployment */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Deployment;
-		};
 		276144C7105F51CB00F906F6 /* Build configuration list for PBXNativeTarget "SIMBL Agent" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
