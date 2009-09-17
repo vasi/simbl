@@ -11,6 +11,10 @@
 
 #import <objc/objc-class.h>
 
+#import <mach-o/arch.h>
+#import <mach-o/loader.h>
+#import <crt_externs.h>
+
 /*
 	<key>SIMBLTargetApplications</key>
 	<array>
@@ -243,8 +247,29 @@ OSErr InjectEventHandler(const AppleEvent *ev, AppleEvent *reply, long refcon)
 {
 	@try
 	{
-		// getting the principalClass should force the bundle to load
 		NSBundle* bundle = [NSBundle bundleWithPath:[_plugin path]];
+		
+		// Handle common errors without spewing to the console
+		NSError* err = nil;
+		[bundle loadAndReturnError: &err];
+		if (err) {
+			switch ([err code]) {
+				case NSExecutableArchitectureMismatchError:
+					NSLog(@"SIMBL: Can't load plugin %@ because it doesn't support the architecture \"%s\". Please contact the plugin developer for an update.",
+						  [_plugin _dt_name],
+						  NXGetArchInfoFromCpuType(_NSGetMachExecuteHeader()->cputype,
+												   CPU_SUBTYPE_MULTIPLE)->name
+						  );
+					break;
+				default:
+					NSLog(@"SIMBL: Can't load plugin %@: %@",
+						  [_plugin _dt_name],
+						  [err localizedDescription]);
+			}
+			return NO;
+		}
+		
+		// getting the principalClass should force the bundle to load
 		Class principalClass = [bundle principalClass];
 		
 		// if the principal class has an + (void) install message, call it
