@@ -6,6 +6,7 @@
 
 #import "SIMBL.h"
 #import "SIMBLAgent.h"
+#import "SIMBLApplication.h"
 #import <ScriptingBridge/ScriptingBridge.h>
 #import <Carbon/Carbon.h>
 
@@ -77,9 +78,10 @@ fail:
 - (void) injectSIMBL:(NSNotification*)notification
 {
 	NSLog(@"received %@", [notification userInfo]);
+	SIMBLApplication *app = [SIMBLApplication applicationWithNotification: notification];
 	
 	// check to see if there are plugins to load
-	if ([SIMBL shouldInstallPluginsIntoApplication:[NSBundle bundleWithPath:[[notification userInfo] objectForKey:@"NSApplicationPath"]]] == NO) {
+	if ([SIMBL shouldInstallPluginsIntoApplication: app] == NO) {
 		return;
 	}
 
@@ -97,19 +99,18 @@ fail:
 	AEEventID eventID = minorOSVersion > 5 ? 'load' : 'leop';
 
 	// Find the process to target
-	pid_t pid = [[[notification userInfo] objectForKey:@"NSApplicationProcessIdentifier"] intValue];
-	SBApplication *app = [SBApplication applicationWithProcessIdentifier: pid];
-	if (!app) {
-		NSLog(@"Can't find app with pid %d", pid);
+	SBApplication *scriptApp = [SBApplication applicationWithProcessIdentifier: app.pid];
+	if (!scriptApp) {
+		NSLog(@"Can't find app with pid %d", app.pid);
 		return;
 	}
-	[app setSendMode:kAENoReply];
+	[scriptApp setSendMode:kAENoReply];
 	
 	// Force AppleScript to initialize in the app, by getting the dictionary
-	[app sendEvent:kASAppleScriptSuite id:kGetAEUT parameters:0];
+	[scriptApp sendEvent:kASAppleScriptSuite id:kGetAEUT parameters:0];
 	
 	// Inject!
-	[app sendEvent:'SIMe' id:eventID parameters:0];
+	[scriptApp sendEvent:'SIMe' id:eventID parameters:0];
 }
 
 @end

@@ -17,6 +17,8 @@
 		2761463C105F985500F906F6 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 276144CF105F523C00F906F6 /* MainMenu.xib */; };
 		276156DC1060C08C00FEF11C /* SIMBL.m in Sources */ = {isa = PBXBuildFile; fileRef = E0AF789609B3031900F50FE7 /* SIMBL.m */; };
 		276156DF1060C09900FEF11C /* SIMBLPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = E0AF789909B3031900F50FE7 /* SIMBLPlugin.m */; };
+		59EAA27810620CF900B56A6A /* SIMBLApplication.m in Sources */ = {isa = PBXBuildFile; fileRef = 59EAA27710620CF900B56A6A /* SIMBLApplication.m */; };
+		59EAA27910620CF900B56A6A /* SIMBLApplication.m in Sources */ = {isa = PBXBuildFile; fileRef = 59EAA27710620CF900B56A6A /* SIMBLApplication.m */; };
 		E04B83EF104E73D80001E0E3 /* SIMBL.sdef in Rez */ = {isa = PBXBuildFile; fileRef = E04B83EE104E73D80001E0E3 /* SIMBL.sdef */; };
 		E0C2C2FE104F376500553034 /* NSAlert_SIMBL.m in Sources */ = {isa = PBXBuildFile; fileRef = E0AF789409B3031900F50FE7 /* NSAlert_SIMBL.m */; };
 		E0C2C2FF104F376600553034 /* SIMBL.m in Sources */ = {isa = PBXBuildFile; fileRef = E0AF789609B3031900F50FE7 /* SIMBL.m */; };
@@ -59,6 +61,8 @@
 		276144D8105F523C00F906F6 /* SIMBLAgent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SIMBLAgent.h; sourceTree = "<group>"; };
 		276144D9105F523C00F906F6 /* SIMBLAgent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SIMBLAgent.m; sourceTree = "<group>"; };
 		27614521105F55D500F906F6 /* ScriptingBridge.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ScriptingBridge.framework; path = /System/Library/Frameworks/ScriptingBridge.framework; sourceTree = "<absolute>"; };
+		59EAA27610620CF900B56A6A /* SIMBLApplication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SIMBLApplication.h; sourceTree = "<group>"; };
+		59EAA27710620CF900B56A6A /* SIMBLApplication.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SIMBLApplication.m; sourceTree = "<group>"; };
 		8D5B49B6048680CD000E48DA /* SIMBL.osax */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SIMBL.osax; sourceTree = BUILT_PRODUCTS_DIR; };
 		E043030209B300D6000FD3C5 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E04B83EE104E73D80001E0E3 /* SIMBL.sdef */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.sdef; path = SIMBL.sdef; sourceTree = "<group>"; };
@@ -169,6 +173,8 @@
 				E0AF789709B3031900F50FE7 /* SIMBL_Prefix.pch */,
 				E0AF789809B3031900F50FE7 /* SIMBLPlugin.h */,
 				E0AF789909B3031900F50FE7 /* SIMBLPlugin.m */,
+				59EAA27610620CF900B56A6A /* SIMBLApplication.h */,
+				59EAA27710620CF900B56A6A /* SIMBLApplication.m */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -295,6 +301,7 @@
 				276144F6105F531D00F906F6 /* SIMBLAgent.m in Sources */,
 				276156DC1060C08C00FEF11C /* SIMBL.m in Sources */,
 				276156DF1060C09900FEF11C /* SIMBLPlugin.m in Sources */,
+				59EAA27910620CF900B56A6A /* SIMBLApplication.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -305,6 +312,7 @@
 				E0C2C2FE104F376500553034 /* NSAlert_SIMBL.m in Sources */,
 				E0C2C2FF104F376600553034 /* SIMBL.m in Sources */,
 				E0C2C300104F376700553034 /* SIMBLPlugin.m in Sources */,
+				59EAA27810620CF900B56A6A /* SIMBLApplication.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

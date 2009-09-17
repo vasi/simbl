@@ -17,6 +17,8 @@
 #define SIMBLTargetApplicationPath @"TargetApplicationPath"
 #define SIMBLRequiredFrameworks @"RequiredFrameworks"
 
+@class SIMBLApplication;
+
 @protocol SIMBLPlugin
 + (void) install;
 @end
@@ -26,10 +28,10 @@
 }
 
 + (void) installPlugins;
-+ (BOOL) shouldInstallPluginsIntoApplication:(NSBundle*)_appBundle;
++ (BOOL) shouldInstallPluginsIntoApplication:(SIMBLApplication*)_app;
 + (BOOL) loadBundleAtPath:(NSString*)_bundlePath;
 + (BOOL) shouldLoadBundleAtPath:(NSString*)_bundlePath;
-+ (BOOL) shouldApplication:(NSBundle*)_appBundle loadBundleAtPath:(NSString*)_bundlePath;
++ (BOOL) shouldApplication:(SIMBLApplication*)_app loadBundleAtPath:(NSString*)_bundlePath;
 + (BOOL) shouldApplication:(NSBundle*)_appBundle loadBundle:(SIMBLPlugin*)_bundle withApplicationIdentifiers:(NSArray*)_applicationIdentifiers;
 + (BOOL) shouldApplication:(NSBundle*)_appBundle loadBundle:(SIMBLPlugin*)_bundle withTargetApplications:(NSArray*)_targetApplications;
 + (BOOL) loadBundle:(SIMBLPlugin*)_bundle;
