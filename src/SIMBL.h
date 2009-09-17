@@ -36,4 +36,6 @@
 + (BOOL) shouldApplication:(NSBundle*)_appBundle loadBundle:(SIMBLPlugin*)_bundle withTargetApplications:(NSArray*)_targetApplications;
 + (BOOL) loadBundle:(SIMBLPlugin*)_bundle;
 
++ (void) missingArch: (NSInteger)_arch inPlugin: (SIMBLPlugin*)_plugin;
+
 @end

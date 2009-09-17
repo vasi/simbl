@@ -6,6 +6,12 @@
 
 #import "SIMBLApplication.h"
 
+
+@interface NSObject (SIMBLNSRunningApplication)
+- (NSInteger) executableArchitecture;
+@end
+
+
 @implementation SIMBLApplication
 
 + (SIMBLApplication*) applicationWithNotification: (NSNotification*)_note {
@@ -45,6 +51,12 @@
 	[bundle release];
 	[runningApp release];
 	[super dealloc];
+}
+
+- (NSInteger) architecture {
+	return self.runningApp
+		? [self.runningApp executableArchitecture]
+		: ArchitectureNotAvailable;
 }
 
 @synthesize bundle, runningApp, pid;

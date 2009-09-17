@@ -117,6 +117,16 @@ OSErr InjectEventHandler(const AppleEvent *ev, AppleEvent *reply, long refcon)
 		return NO;
 	}
 	
+	// Check for architecture compatibility
+	if (_app.architecture != ArchitectureNotAvailable) {
+		NSBundle *bundle = [NSBundle bundleWithPath: [pluginBundle path]];
+		if ([[bundle executableArchitectures] containsObject:
+			 [NSNumber numberWithInt: _app.architecture]] == NO) {
+			[self missingArch: _app.architecture inPlugin: pluginBundle];
+			return NO;
+		}
+	}
+	
 	// this is the new way of specifying when to load a bundle
 	NSArray* targetApplications = [pluginBundle objectForInfoDictionaryKey:SIMBLTargetApplications];
 	if (targetApplications)
@@ -256,11 +266,7 @@ OSErr InjectEventHandler(const AppleEvent *ev, AppleEvent *reply, long refcon)
 		if (err) {
 			switch ([err code]) {
 				case NSExecutableArchitectureMismatchError:
-					NSLog(@"SIMBL: Can't load plugin %@ because it doesn't support the architecture \"%s\". Please contact the plugin developer for an update.",
-						  [_plugin _dt_name],
-						  NXGetArchInfoFromCpuType(_NSGetMachExecuteHeader()->cputype,
-												   CPU_SUBTYPE_MULTIPLE)->name
-						  );
+					[self missingArch: _NSGetMachExecuteHeader()->cputype inPlugin: _plugin];
 					break;
 				default:
 					NSLog(@"SIMBL: Can't load plugin %@: %@",
@@ -288,6 +294,13 @@ OSErr InjectEventHandler(const AppleEvent *ev, AppleEvent *reply, long refcon)
 	}
 	
 	return NO;
+}
+
++ (void) missingArch: (NSInteger)_arch inPlugin: (SIMBLPlugin*)_plugin {
+	NSLog(@"SIMBL: Can't load plugin %@ because it doesn't support the architecture \"%s\". Please contact the plugin developer for an update.",
+		  [_plugin _dt_name],
+		  NXGetArchInfoFromCpuType(_arch, CPU_SUBTYPE_MULTIPLE)->name
+	);
 }
 
 @end

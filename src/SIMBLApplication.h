@@ -5,7 +5,12 @@
  */
 
 #import <Cocoa/Cocoa.h>
+#import <mach/machine.h>
 
+enum {
+	ArchitectureNotAvailable = CPU_TYPE_ANY
+	// Other constants from NSBundle
+};
 
 // A wrapper for NSWorkspace notification info
 @interface SIMBLApplication : NSObject {
@@ -24,5 +29,6 @@
 @property (readonly) NSBundle *bundle;
 @property (readonly) id runningApp; // NSRunningApplication*, nil if none
 @property (readonly) pid_t pid;
+@property (readonly) NSInteger architecture;
 
 @end
