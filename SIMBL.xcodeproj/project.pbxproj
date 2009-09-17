@@ -17,14 +17,27 @@
 		2761463C105F985500F906F6 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 276144CF105F523C00F906F6 /* MainMenu.xib */; };
 		276156DC1060C08C00FEF11C /* SIMBL.m in Sources */ = {isa = PBXBuildFile; fileRef = E0AF789609B3031900F50FE7 /* SIMBL.m */; };
 		276156DF1060C09900FEF11C /* SIMBLPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = E0AF789909B3031900F50FE7 /* SIMBLPlugin.m */; };
-		E0497390104E7B1E00D3981F /* SIMBL.r in Rez */ = {isa = PBXBuildFile; fileRef = E0497384104E7AE800D3981F /* SIMBL.r */; };
-		E04B83EF104E73D80001E0E3 /* SIMBL.sdef in Resources */ = {isa = PBXBuildFile; fileRef = E04B83EE104E73D80001E0E3 /* SIMBL.sdef */; };
+		E04B83EF104E73D80001E0E3 /* SIMBL.sdef in Rez */ = {isa = PBXBuildFile; fileRef = E04B83EE104E73D80001E0E3 /* SIMBL.sdef */; };
 		E0C2C2FE104F376500553034 /* NSAlert_SIMBL.m in Sources */ = {isa = PBXBuildFile; fileRef = E0AF789409B3031900F50FE7 /* NSAlert_SIMBL.m */; };
 		E0C2C2FF104F376600553034 /* SIMBL.m in Sources */ = {isa = PBXBuildFile; fileRef = E0AF789609B3031900F50FE7 /* SIMBL.m */; };
 		E0C2C300104F376700553034 /* SIMBLPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = E0AF789909B3031900F50FE7 /* SIMBLPlugin.m */; };
 		E0EE4A4F0693E03F0061E2D8 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E0EE4A4D0693E03F0061E2D8 /* AppKit.framework */; };
 		E0EE4A500693E03F0061E2D8 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E0EE4A4E0693E03F0061E2D8 /* Cocoa.framework */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXBuildRule section */
+		5916EA7C1061E4DD007D63BB /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.proxy.script;
+			filePatterns = "*.sdef";
+			fileType = pattern.proxy;
+			isEditable = 1;
+			outputFiles = (
+				"$(INPUT_FILE_BASE).r",
+			);
+			script = "# Build resource AND copy sdef\n/usr/bin/sdp -f a -o \"${DERIVED_FILES_DIR}/${INPUT_FILE_BASE}.r\" \"${INPUT_FILE_PATH}\"\n/bin/cp \"${INPUT_FILE_PATH}\" \"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\"";
+		};
+/* End PBXBuildRule section */
 
 /* Begin PBXContainerItemProxy section */
 		5916EA531061E09E007D63BB /* PBXContainerItemProxy */ = {
@@ -48,7 +61,6 @@
 		27614521105F55D500F906F6 /* ScriptingBridge.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ScriptingBridge.framework; path = /System/Library/Frameworks/ScriptingBridge.framework; sourceTree = "<absolute>"; };
 		8D5B49B6048680CD000E48DA /* SIMBL.osax */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SIMBL.osax; sourceTree = BUILT_PRODUCTS_DIR; };
 		E043030209B300D6000FD3C5 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		E0497384104E7AE800D3981F /* SIMBL.r */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.rez; path = SIMBL.r; sourceTree = "<group>"; };
 		E04B83EE104E73D80001E0E3 /* SIMBL.sdef */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.sdef; path = SIMBL.sdef; sourceTree = "<group>"; };
 		E0AF789209B3031900F50FE7 /* DTMacros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTMacros.h; path = src/DTMacros.h; sourceTree = SOURCE_ROOT; };
 		E0AF789309B3031900F50FE7 /* NSAlert_SIMBL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSAlert_SIMBL.h; sourceTree = "<group>"; };
@@ -140,7 +152,6 @@
 			isa = PBXGroup;
 			children = (
 				276144C1105F51CA00F906F6 /* SIMBL Agent.app */,
-				E0497384104E7AE800D3981F /* SIMBL.r */,
 				E04B83EE104E73D80001E0E3 /* SIMBL.sdef */,
 				E043030209B300D6000FD3C5 /* Info.plist */,
 			);
@@ -189,10 +200,11 @@
 				8D5B49AF048680CD000E48DA /* Resources */,
 				8D5B49B1048680CD000E48DA /* Sources */,
 				E04B8405104E753F0001E0E3 /* ShellScript */,
-				8D5B49B5048680CD000E48DA /* Rez */,
 				8D5B49B3048680CD000E48DA /* Frameworks */,
+				5916EB511061E5E0007D63BB /* Rez */,
 			);
 			buildRules = (
+				5916EA7C1061E4DD007D63BB /* PBXBuildRule */,
 			);
 			dependencies = (
 				5916EA541061E09E007D63BB /* PBXTargetDependency */,
@@ -238,7 +250,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E04B83EF104E73D80001E0E3 /* SIMBL.sdef in Resources */,
 				276144DA105F523C00F906F6 /* InfoPlist.strings in Resources */,
 				276144DB105F523C00F906F6 /* MainMenu.xib in Resources */,
 				27614514105F556A00F906F6 /* SIMBL Agent.app in Resources */,
@@ -248,11 +259,11 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXRezBuildPhase section */
-		8D5B49B5048680CD000E48DA /* Rez */ = {
+		5916EB511061E5E0007D63BB /* Rez */ = {
 			isa = PBXRezBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E0497390104E7B1E00D3981F /* SIMBL.r in Rez */,
+				E04B83EF104E73D80001E0E3 /* SIMBL.sdef in Rez */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
