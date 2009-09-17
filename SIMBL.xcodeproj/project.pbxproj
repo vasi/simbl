@@ -44,7 +44,7 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 089C1669FE841209C02AAC07 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 276144C0105F51CA00F906F6 /* SIMBL Agent */;
+			remoteGlobalIDString = 276144C0105F51CA00F906F6;
 			remoteInfo = "SIMBL Agent";
 		};
 /* End PBXContainerItemProxy section */
