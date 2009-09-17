@@ -33,75 +33,94 @@ OSErr InjectEventHandler(const AppleEvent *ev, AppleEvent *reply, long refcon)
 {
 	OSErr resultCode = noErr;
 	NSLog(@"InjectEventHandler");
-	[SIMBL installPlugins:nil];			
+	[SIMBL installPlugins];			
 	return resultCode;	
 }
 
-+ (void) installPlugins:(NSNotification*)_notification
+
++ (NSArray*) pluginPathList
+{
+	NSMutableArray* pluginPathList = [NSMutableArray array];
+	NSArray* paths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory,  NSUserDomainMask | NSLocalDomainMask | NSNetworkDomainMask, YES);
+	for (NSString* libraryPath in [paths objectEnumerator]) {
+		NSString* simblPath = [libraryPath stringByAppendingPathComponent:SIMBLPluginPath];
+		NSArray* simblBundles = [[[NSFileManager defaultManager] directoryContentsAtPath:simblPath] pathsMatchingExtensions:[NSArray arrayWithObject:@"bundle"]];
+		for (NSString* bundleName in [simblBundles objectEnumerator]) {
+			[pluginPathList addObject:[simblPath stringByAppendingPathComponent:bundleName]];
+		}
+	}
+	return pluginPathList;
+}
+
+
++ (void) installPlugins
 {
 	if (loadedBundleIdentifiers == nil)
 		loadedBundleIdentifiers = [[NSMutableDictionary alloc] init];
 	
 	DTLog(DTLog_Developer, @"SIMBL loaded by path %@ <%@>", [[NSBundle mainBundle] bundlePath], [[NSBundle mainBundle] bundleIdentifier]);
 	
-	NSArray* paths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory,  NSUserDomainMask | NSLocalDomainMask | NSNetworkDomainMask, YES);
-	NSEnumerator* pathEnumerator = [paths objectEnumerator];
-	NSString* libraryPath;
-	while (libraryPath = [pathEnumerator nextObject])
-	{
-		NSString* simblPath = [libraryPath stringByAppendingPathComponent:SIMBLPluginPath];
-		NSArray* simblBundles = [[[NSFileManager defaultManager] directoryContentsAtPath:simblPath] pathsMatchingExtensions:[NSArray arrayWithObject:@"bundle"]];
-		NSEnumerator* simblEnumerator = [simblBundles objectEnumerator];
-		NSString* loadableBundle;
-		while (loadableBundle = [simblEnumerator nextObject])
-		{
-			loadableBundle = [simblPath stringByAppendingPathComponent:loadableBundle];
-			BOOL bundleLoaded = [SIMBL loadBundleAtPath:loadableBundle];
-			if (bundleLoaded)
-				DTLog(DTLog_Developer, @"loaded %@", loadableBundle);
-		}
-	}	
+	for (NSString* path in [SIMBL pluginPathList]) {
+		BOOL bundleLoaded = [SIMBL loadBundleAtPath:path];
+		if (bundleLoaded)
+			DTLog(DTLog_Developer, @"loaded %@", path);
+	}
 }
+
+
++ (BOOL) shouldInstallPluginsIntoApplication:(NSBundle*)_appBundle
+{
+	for (NSString* path in [SIMBL pluginPathList]) {
+		BOOL bundleLoaded = [SIMBL shouldApplication:_appBundle loadBundleAtPath:path];
+		if (bundleLoaded)
+			return YES;
+	}
+	return NO;
+}
+
 
 /**
  * get this list of allowed application identifiers from the plugin's Info.plist
  * the special value * will cause any Cocoa app to load a bundle
- * if there is a match, this calls the main bundle's load method
- * @return YES if this bundle was loaded
+ * @return YES if this should be loaded
  */
-+ (BOOL) loadBundleAtPath:(NSString*)_bundlePath
++ (BOOL) shouldLoadBundleAtPath:(NSString*)_bundlePath
+{
+	NSBundle* appBundle = [NSBundle mainBundle];
+	return [SIMBL shouldApplication:appBundle loadBundleAtPath:_bundlePath];
+}
+
+
+/**
+ * get this list of allowed application identifiers from the plugin's Info.plist
+ * the special value * will cause any Cocoa app to load a bundle
+ * @return YES if this should be loaded
+ */
++ (BOOL) shouldApplication:(NSBundle*)_appBundle loadBundleAtPath:(NSString*)_bundlePath
 {
 	DTLog(DTLog_Developer, @"checking bundle %@", _bundlePath);
 	_bundlePath = [_bundlePath stringByStandardizingPath];
 	SIMBLPlugin* pluginBundle = [SIMBLPlugin bundleWithPath:_bundlePath];
-	if (pluginBundle == nil)
-	{
+	if (pluginBundle == nil) {
 		NSLog(@"Unable to load bundle at path '%@'", _bundlePath);
 		return NO;
 	}
 	
 	NSString* pluginIdentifier = [pluginBundle bundleIdentifier];
-	if (pluginIdentifier == nil)
-	{
+	if (pluginIdentifier == nil) {
 		NSLog(@"No identifier for bundle at path '%@'", _bundlePath);
 		return NO;
 	}
 	
-	// check to see if we already loaded code for this identifier (keeps us from double loading)
-	// this is common if you have User vs. System-wide installs - probably mostly for developers
-	// "physician, heal thyself!"
-	if ([loadedBundleIdentifiers objectForKey:pluginIdentifier] != nil)
-		return NO;
-	
 	// this is the new way of specifying when to load a bundle
 	NSArray* targetApplications = [pluginBundle objectForInfoDictionaryKey:SIMBLTargetApplications];
 	if (targetApplications)
-		return [self loadBundle:pluginBundle forTargetApplications:targetApplications];
+		return [self shouldApplication:_appBundle loadBundle:pluginBundle withTargetApplications:targetApplications];
 	
 	// fall back to the old method for older plugins - we should probably throw a depreaction warning
 	NSArray* applicationIdentifiers = [pluginBundle objectForInfoDictionaryKey:SIMBLApplicationIdentifier];
 	if (applicationIdentifiers)
-		return [self loadBundle:pluginBundle forApplicationIdentifiers:applicationIdentifiers];
+		return [self shouldApplication:_appBundle loadBundle:pluginBundle withApplicationIdentifiers:applicationIdentifiers];
 	
 	return NO;
 }
@@ -113,20 +132,40 @@ OSErr InjectEventHandler(const AppleEvent *ev, AppleEvent *reply, long refcon)
  * if there is a match, this calls the main bundle's load method
  * @return YES if this bundle was loaded
  */
-+ (BOOL) loadBundle:(SIMBLPlugin*)_bundle forApplicationIdentifiers:(NSArray*)_applicationIdentifiers
++ (BOOL) loadBundleAtPath:(NSString*)_bundlePath
+{
+	if ([SIMBL shouldLoadBundleAtPath:_bundlePath] == NO) {
+		return NO;
+	}
+	
+	SIMBLPlugin* pluginBundle = [SIMBLPlugin bundleWithPath:_bundlePath];
+
+	// check to see if we already loaded code for this identifier (keeps us from double loading)
+	// this is common if you have User vs. System-wide installs - probably mostly for developers
+	// "physician, heal thyself!"
+	NSString* pluginIdentifier = [pluginBundle bundleIdentifier];
+	if ([loadedBundleIdentifiers objectForKey:pluginIdentifier] != nil)
+		return NO;
+	return [SIMBL loadBundle:pluginBundle];
+}
+
+
+/**
+ * get this list of allowed application identifiers from the plugin's Info.plist
+ * the special value * will cause any Cocoa app to load a bundle
+ * if there is a match, this calls the main bundle's load method
+ * @return YES if this bundle was loaded
+ */
++ (BOOL) shouldApplication:(NSBundle*)_appBundle loadBundle:(SIMBLPlugin*)_bundle withApplicationIdentifiers:(NSArray*)_applicationIdentifiers
 {	
-	NSString* appIdentifier = [[NSBundle mainBundle] bundleIdentifier];
-	NSEnumerator* allowIdentifiers = [_applicationIdentifiers objectEnumerator];
-	NSString* specifiedIdentifier;
-	while (specifiedIdentifier = [allowIdentifiers nextObject])
-	{
+	NSString* appIdentifier = [_appBundle bundleIdentifier];
+	for (NSString* specifiedIdentifier in [_applicationIdentifiers objectEnumerator]) {
 		DTLog(DTLog_Developer, @"checking bundle %@ for identifier %@", [_bundle bundleIdentifier], specifiedIdentifier);
 		if ([specifiedIdentifier isEqualToString:appIdentifier] == YES ||
-			[specifiedIdentifier isEqualToString:@"*"] == YES)
-		{
+			[specifiedIdentifier isEqualToString:@"*"] == YES) {
 			DTLog(DTLog_Developer, @"load bundle %@", [_bundle bundleIdentifier]);
 			NSLog(@"The plugin %@ (%@) is using a deprecated interface to SIMBL. Please contact the appropriate developer (not the SIMBL author) and refer them to http://culater.net/wiki/moin.cgi/CocoaReverseEngineering", [_bundle path], [_bundle bundleIdentifier]);
-			return [self loadBundle:_bundle];
+			return YES;
 		}
 	}
 	
@@ -140,13 +179,10 @@ OSErr InjectEventHandler(const AppleEvent *ev, AppleEvent *reply, long refcon)
  * if there is a match, this calls the main bundle's load method
  * @return YES if this bundle was loaded
  */
-+ (BOOL) loadBundle:(SIMBLPlugin*)_bundle forTargetApplications:(NSArray*)_targetApplications
-{	
-	NSString* appIdentifier = [[NSBundle mainBundle] bundleIdentifier];
-	NSEnumerator* targetApplications = [_targetApplications objectEnumerator];
-	NSDictionary* targetAppProperties;
-	while (targetAppProperties = [targetApplications nextObject])
-	{
++ (BOOL) shouldApplication:(NSBundle*)_appBundle loadBundle:(SIMBLPlugin*)_bundle withTargetApplications:(NSArray*)_targetApplications
+{
+	NSString* appIdentifier = [_appBundle bundleIdentifier];
+	for (NSDictionary* targetAppProperties in [_targetApplications objectEnumerator]) {
 		NSString* targetAppIdentifier = [targetAppProperties objectForKey:SIMBLBundleIdentifier];
 		DTLog(DTLog_Developer, @"checking target identifier %@", targetAppIdentifier);
 		if ([targetAppIdentifier isEqualToString:appIdentifier] == NO &&
@@ -154,7 +190,7 @@ OSErr InjectEventHandler(const AppleEvent *ev, AppleEvent *reply, long refcon)
 			continue;
 
 		NSString* targetAppPath = [targetAppProperties objectForKey:SIMBLTargetApplicationPath];
-		if (targetAppPath && [targetAppPath isEqualToString:[[NSBundle mainBundle] bundlePath]] == NO)
+		if (targetAppPath && [targetAppPath isEqualToString:[_appBundle bundlePath]] == NO)
 			continue;
 
 		NSArray* requiredFrameworks = [targetAppProperties objectForKey:SIMBLRequiredFrameworks];
@@ -178,7 +214,7 @@ OSErr InjectEventHandler(const AppleEvent *ev, AppleEvent *reply, long refcon)
 		if (missingFramework)
 			continue;
 		
-		int appVersion = [[[NSBundle mainBundle] _dt_bundleVersion] intValue];
+		int appVersion = [[_appBundle _dt_bundleVersion] intValue];
 		
 		int minVersion = 0;
 		NSNumber* number;
@@ -192,11 +228,11 @@ OSErr InjectEventHandler(const AppleEvent *ev, AppleEvent *reply, long refcon)
 		if ((maxVersion && appVersion > maxVersion) || (minVersion && appVersion < minVersion))
 		{
 			DTLog(DTLog_Developer, @"max: %d, min: %d, app: %d", maxVersion, minVersion, appVersion);
-			[NSAlert errorAlert:NSLocalizedStringFromTableInBundle(@"SIMBL Error", SIMBLStringTable, DTOwnerBundle, @"Error alert primary message") withDetails:NSLocalizedStringFromTableInBundle(@"%@ %@ (v%@) has not been tested with the plugin %@ %@ (v%@). As a precaution, it has not been loaded. Please contact the plugin developer (not the SIMBL author) for further information.", SIMBLStringTable, DTOwnerBundle, @"Error alert details, substitute application and plugin version strings"), [[NSBundle mainBundle] _dt_name], [[NSBundle mainBundle] _dt_version], [[NSBundle mainBundle] _dt_bundleVersion], [_bundle _dt_name], [_bundle _dt_version], [_bundle _dt_bundleVersion]];
+			[NSAlert errorAlert:NSLocalizedStringFromTableInBundle(@"SIMBL Error", SIMBLStringTable, DTOwnerBundle, @"Error alert primary message") withDetails:NSLocalizedStringFromTableInBundle(@"%@ %@ (v%@) has not been tested with the plugin %@ %@ (v%@). As a precaution, it has not been loaded. Please contact the plugin developer (not the SIMBL author) for further information.", SIMBLStringTable, DTOwnerBundle, @"Error alert details, substitute application and plugin version strings"), [_appBundle _dt_name], [_appBundle _dt_version], [_appBundle _dt_bundleVersion], [_bundle _dt_name], [_bundle _dt_version], [_bundle _dt_bundleVersion]];
 			continue;
 		}
 		
-		return [self loadBundle:_bundle];
+		return YES;
 	}
 	
 	return NO;
