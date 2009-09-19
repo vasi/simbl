@@ -26,7 +26,7 @@ if [ ! -d "$LAUNCH_AGENTS_DIR" ]; then
   chown root:wheel "$LAUNCH_AGENTS_DIR"
 fi
 # ensure agents are world-readable
-chmod 775 "$LAUNCH_AGENTS_DIR"
+chmod 755 "$LAUNCH_AGENTS_DIR"
 
 # ensure that this loads on restart
 cp "$LAUNCHD_PLIST" "$LAUNCH_AGENTS_DIR"
